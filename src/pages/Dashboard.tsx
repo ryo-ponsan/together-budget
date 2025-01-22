@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { auth, db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
-import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { Link } from 'react-router-dom';
 
 // Add this interface at the top of the file
 interface Expense {
@@ -30,6 +31,8 @@ function Dashboard() {
   const [editAmountPHP, setEditAmountPHP] = useState<string>('');
   const [editAmountJPY, setEditAmountJPY] = useState<string>('');
   const [editDescription, setEditDescription] = useState<string>('');
+  const [viewingUserId, setViewingUserId] = useState<string | null>(null);
+  const [connections, setConnections] = useState<string[]>([]);
 
   const categories = [
     'Food',
@@ -53,15 +56,33 @@ function Dashboard() {
   const PHP_TO_JPY_RATE = 2.67;  // 1 PHP = 2.67 JPY
   const JPY_TO_PHP_RATE = 0.37;  // 1 JPY = 0.37 PHP
 
+  // パートナー接続を取得
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'expenses'), where('userId', '==', user.uid));
+    
+    const fetchConnections = async () => {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        setConnections(userDoc.data().connections || []);
+      }
+    };
+
+    fetchConnections();
+  }, [user]);
+
+  // 支出データを監視
+  useEffect(() => {
+    if (!user) return;
+    
+    const targetUserId = viewingUserId || user.uid;
+    const q = query(collection(db, 'expenses'), where('userId', '==', targetUserId));
+    
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ 
         id: doc.id, 
         ...doc.data() 
       })) as Expense[];
-      // Sort expenses by createdAt timestamp in descending order
       const sortedData = data.sort((a, b) => {
         const timeA = a.createdAt?.seconds || 0;
         const timeB = b.createdAt?.seconds || 0;
@@ -69,8 +90,9 @@ function Dashboard() {
       });
       setExpenses(sortedData);
     });
+    
     return () => unsubscribe();
-  }, [user]);
+  }, [user, viewingUserId]);
 
   const handleAddExpense = async () => {
     if (!user) return;
@@ -159,6 +181,35 @@ function Dashboard() {
     }
   };
 
+  // ヘッダー部分に追加するビューセレクター
+  const ViewSelector = () => (
+    <div className="flex items-center space-x-4 mt-4 md:mt-0">
+      <button
+        onClick={() => setViewingUserId(null)}
+        className={`px-4 py-2 rounded-md transition-colors ${
+          !viewingUserId 
+            ? 'bg-purple-600 text-white' 
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        }`}
+      >
+        My expense
+      </button>
+      {connections.map(connection => (
+        <button
+          key={connection}
+          onClick={() => setViewingUserId(connection)}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            viewingUserId === connection
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          Partner's expense
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -168,84 +219,93 @@ function Dashboard() {
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
               Dashboard
             </h1>
-            <div className="text-gray-600 text-sm mt-2">
-              <p>PHP_TO_JPY_RATE: 1 PHP = {PHP_TO_JPY_RATE} JPY</p>
-              <p>JPY_TO_PHP_RATE: 1 JPY = {JPY_TO_PHP_RATE} PHP</p>
-            </div>
+            <ViewSelector />
           </div>
-          <button
-            onClick={handleSignOut}
-            className="mt-4 md:mt-0 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-          >
-            Sign Out
-          </button>
+          <div className="flex space-x-4">
+            <Link
+              to="/connect"
+              className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
+            >
+              Connect with partner
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
 
-        {/* Input Form */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="block text-gray-700">Date:</label>
-              <input
-                type="date"
-                value={date}
-                onChange={e => setDate(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-gray-700">Category:</label>
-              <select
-                value={category}
-                onChange={e => setCategory(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-gray-700">Description:</label>
-              <input
-                type="text"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-gray-700">Amount (PHP):</label>
-              <input
-                type="number"
-                value={amountPHP}
-                onChange={e => handlePHPChange(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-gray-700">Amount (JPY):</label>
-              <input
-                type="number"
-                value={amountJPY}
-                onChange={e => handleJPYChange(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex items-end">
-              <button
-                onClick={handleAddExpense}
-                className="w-full p-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all"
-              >
-                Add Expense
-              </button>
+        {/* Input Form - Only show when viewing own expenses */}
+        {!viewingUserId && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="block text-gray-700">Date:</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Category:</label>
+                <select
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Description:</label>
+                <input
+                  type="text"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Amount (PHP):</label>
+                <input
+                  type="number"
+                  value={amountPHP}
+                  onChange={e => handlePHPChange(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Amount (JPY):</label>
+                <input
+                  type="number"
+                  value={amountJPY}
+                  onChange={e => handleJPYChange(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={handleAddExpense}
+                  className="w-full p-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all"
+                >
+                  Add Expense
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Expense List */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 overflow-x-auto">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Expense List</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            {viewingUserId ? 'パートナーの支出リスト' : '支出リスト'}
+          </h2>
           <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50">
               <tr>
@@ -299,14 +359,7 @@ function Dashboard() {
                     )}
                   </td>
                   <td className="p-3">
-                    {editExpenseId === exp.id ? (
-                      <button
-                        onClick={handleUpdateExpense}
-                        className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                      >
-                        Update
-                      </button>
-                    ) : (
+                    {!viewingUserId && (
                       <div className="space-x-2">
                         <button
                           onClick={() => handleEditExpense(exp)}

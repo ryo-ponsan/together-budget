@@ -4,6 +4,7 @@ import { auth } from './firebaseConfig';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Connect from './pages/Connect';
 
 function App() {
   const [user, loading, error] = useAuthState(auth);
@@ -29,6 +30,12 @@ function App() {
           path="/dashboard"
           element={
             user ? <Dashboard /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+          path="/connect"
+          element={
+            user ? <Connect /> : <Navigate to="/login" replace />
           }
         />
         <Route
