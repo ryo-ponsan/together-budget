@@ -64,7 +64,11 @@ function Dashboard() {
       const userRef = doc(db, 'users', user.uid);
       const userDoc = await getDoc(userRef);
       if (userDoc.exists()) {
-        setConnections(userDoc.data().connections || []);
+        const userData = userDoc.data();
+        // connectionsフィールドを確認
+        if (userData.connections && userData.connections.length > 0) {
+          setConnections(userData.connections);
+        }
       }
     };
 
@@ -76,13 +80,21 @@ function Dashboard() {
     if (!user) return;
     
     const targetUserId = viewingUserId || user.uid;
-    const q = query(collection(db, 'expenses'), where('userId', '==', targetUserId));
+    console.log('Current viewing userId:', targetUserId); // デバッグ用
+
+    const q = query(
+      collection(db, 'expenses'), 
+      where('userId', '==', targetUserId)
+    );
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ 
         id: doc.id, 
         ...doc.data() 
       })) as Expense[];
+      
+      console.log('Fetched expenses:', data); // デバッグ用
+      
       const sortedData = data.sort((a, b) => {
         const timeA = a.createdAt?.seconds || 0;
         const timeB = b.createdAt?.seconds || 0;
@@ -91,7 +103,10 @@ function Dashboard() {
       setExpenses(sortedData);
     });
     
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      setExpenses([]); 
+    };
   }, [user, viewingUserId]);
 
   const handleAddExpense = async () => {
@@ -185,7 +200,10 @@ function Dashboard() {
   const ViewSelector = () => (
     <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
       <button
-        onClick={() => setViewingUserId(null)}
+        onClick={() => {
+          setViewingUserId(null);
+          console.log('Switched to My expenses'); // デバッグ用
+        }}
         className={`px-4 py-2 rounded-md transition-colors ${
           !viewingUserId 
             ? 'bg-purple-600 text-white' 
@@ -194,19 +212,21 @@ function Dashboard() {
       >
         My expense
       </button>
-      {connections.map(connection => (
+      {connections.length > 0 && (
         <button
-          key={connection}
-          onClick={() => setViewingUserId(connection)}
+          onClick={() => {
+            setViewingUserId(connections[0]);
+            console.log('Switched to Partner expenses:', connections[0]); // デバッグ用
+          }}
           className={`px-4 py-2 rounded-md transition-colors ${
-            viewingUserId === connection
+            viewingUserId === connections[0]
               ? 'bg-purple-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
           Partner's expense
         </button>
-      ))}
+      )}
     </div>
   );
 
