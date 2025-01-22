@@ -75,7 +75,7 @@ function Dashboard() {
   const handleAddExpense = async () => {
     if (!user) return;
     try {
-      const docRef = await addDoc(collection(db, 'expenses'), {
+      await addDoc(collection(db, 'expenses'), {
         userId: user.uid,
         date,
         category,
@@ -84,18 +84,6 @@ function Dashboard() {
         description,
         createdAt: serverTimestamp()
       });
-      setExpenses(prevExpenses => [
-        ...prevExpenses,
-        { 
-          id: docRef.id, 
-          date, 
-          category, 
-          amountPHP: Number(amountPHP), 
-          amountJPY: Number(amountJPY), 
-          description,
-          userId: user.uid
-        }
-      ]);
       setDate(new Date().toISOString().split('T')[0]);
       setCategory('Food');
       setAmountPHP('');
