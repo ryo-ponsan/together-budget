@@ -183,7 +183,7 @@ function Dashboard() {
 
   // ヘッダー部分に追加するビューセレクター
   const ViewSelector = () => (
-    <div className="flex items-center space-x-4 mt-4 md:mt-0">
+    <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
       <button
         onClick={() => setViewingUserId(null)}
         className={`px-4 py-2 rounded-md transition-colors ${
@@ -214,26 +214,28 @@ function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
-          <div>
-            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              Dashboard
-            </h1>
-            <ViewSelector />
-          </div>
-          <div className="flex space-x-4">
-            <Link
-              to="/connect"
-              className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
-            >
-              Connect with partner
-            </Link>
-            <button
-              onClick={handleSignOut}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-            >
-              Sign Out
-            </button>
+        <div className="flex flex-col space-y-4 md:space-y-0 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
+            <div className="space-y-4">
+              <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                Dashboard
+              </h1>
+              <ViewSelector />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to="/connect"
+                className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
+              >
+                Connect with partner
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
 
@@ -361,18 +363,29 @@ function Dashboard() {
                   <td className="p-3">
                     {!viewingUserId && (
                       <div className="space-x-2">
-                        <button
-                          onClick={() => handleEditExpense(exp)}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteExpense(exp.id)}
-                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                          Delete
-                        </button>
+                        {editExpenseId === exp.id ? (
+                          <button
+                            onClick={handleUpdateExpense}
+                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                          >
+                            Save
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleEditExpense(exp)}
+                              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteExpense(exp.id)}
+                              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
                       </div>
                     )}
                   </td>
