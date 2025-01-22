@@ -3,13 +3,28 @@ import { auth, db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
+// Add this interface at the top of the file
+interface Expense {
+  id: string;
+  date: string;
+  category: string;
+  amountPHP: number;
+  amountJPY: number;
+  description: string;
+  createdAt?: {
+    seconds: number;
+    nanoseconds: number;
+  };
+  userId: string;
+}
+
 function Dashboard() {
   const user = auth.currentUser;
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [category, setCategory] = useState('Food');
   const [amountPHP, setAmountPHP] = useState('');
   const [amountJPY, setAmountJPY] = useState('');
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [description, setDescription] = useState('');
   const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
   const [editAmountPHP, setEditAmountPHP] = useState<string>('');
@@ -42,7 +57,10 @@ function Dashboard() {
     if (!user) return;
     const q = query(collection(db, 'expenses'), where('userId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      })) as Expense[];
       // Sort expenses by createdAt timestamp in descending order
       const sortedData = data.sort((a, b) => {
         const timeA = a.createdAt?.seconds || 0;
@@ -68,7 +86,15 @@ function Dashboard() {
       });
       setExpenses(prevExpenses => [
         ...prevExpenses,
-        { id: docRef.id, date, category, amountPHP: Number(amountPHP), amountJPY: Number(amountJPY), description }
+        { 
+          id: docRef.id, 
+          date, 
+          category, 
+          amountPHP: Number(amountPHP), 
+          amountJPY: Number(amountJPY), 
+          description,
+          userId: user.uid
+        }
       ]);
       setDate(new Date().toISOString().split('T')[0]);
       setCategory('Food');
@@ -84,7 +110,7 @@ function Dashboard() {
     await signOut(auth);
   };
 
-  const handleEditExpense = (expense: any) => {
+  const handleEditExpense = (expense: Expense) => {
     setEditExpenseId(expense.id);
     setEditAmountPHP(expense.amountPHP.toString());
     setEditAmountJPY(expense.amountJPY.toString());
