@@ -237,17 +237,21 @@ function Dashboard() {
         <div className="flex flex-col space-y-4 md:space-y-0 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
             <div className="space-y-4">
-              <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              {/* <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
                 Dashboard
-              </h1>
+              </h1> */}
               <ViewSelector />
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
                 to="/connect"
-                className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  connections.length > 0 
+                    ? 'bg-gray-500 text-gray-200 hover:bg-gray-600' // Changed to a darker shade
+                    : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                }`}
               >
-                Connect with partner
+                {connections.length > 0 ? 'Change setting' : 'Connect with partner'}
               </Link>
               <button
                 onClick={handleSignOut}
@@ -326,25 +330,25 @@ function Dashboard() {
         {/* Expense List */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 overflow-x-auto">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {viewingUserId ? 'パートナーの支出リスト' : '支出リスト'}
+            {viewingUserId ? 'Partner\'s expense list' : 'Expense list'}
           </h2>
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50">
+          <table className="w-full min-w-[800px] border-b border-t">
+            <thead className="bg-gray-50 border-b-2">
               <tr>
-                <th className="p-3 text-left text-gray-600">Date</th>
-                <th className="p-3 text-left text-gray-600">Category</th>
-                <th className="p-3 text-left text-gray-600">Description</th>
-                <th className="p-3 text-left text-gray-600">Amount(PHP)</th>
-                <th className="p-3 text-left text-gray-600">Amount(JPY)</th>
-                <th className="p-3 text-left text-gray-600">Actions</th>
+                <th className="p-3 text-left text-gray-600 border-r border-l">Date</th>
+                <th className="p-3 text-left text-gray-600 border-r border-l">Category</th>
+                <th className="p-3 text-left text-gray-600 border-r border-l">Description</th>
+                <th className="p-3 text-left text-gray-600 border-r border-l">Amount(PHP)</th>
+                <th className="p-3 text-left text-gray-600 border-r border-l">Amount(JPY)</th>
+                <th className="p-3 text-left text-gray-600 border-r border-l">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {expenses.map(exp => (
                 <tr key={exp.id} className="hover:bg-gray-50">
-                  <td className="p-3">{exp.date}</td>
-                  <td className="p-3">{exp.category}</td>
-                  <td className="p-3">
+                  <td className="p-3 border-r border-l">{exp.date}</td>
+                  <td className="p-3 border-r border-l">{exp.category}</td>
+                  <td className="p-3 border-r border-l">
                     {editExpenseId === exp.id ? (
                       <input
                         type="text"
@@ -356,7 +360,7 @@ function Dashboard() {
                       exp.description
                     )}
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 border-r border-l">
                     {editExpenseId === exp.id ? (
                       <input
                         type="number"
@@ -368,7 +372,7 @@ function Dashboard() {
                       exp.amountPHP
                     )}
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 border-r">
                     {editExpenseId === exp.id ? (
                       <input
                         type="number"
@@ -382,7 +386,7 @@ function Dashboard() {
                   </td>
                   <td className="p-3">
                     {!viewingUserId && (
-                      <div className="space-x-2">
+                      <div className="space-x-2 border-l">
                         {editExpenseId === exp.id ? (
                           <button
                             onClick={handleUpdateExpense}
