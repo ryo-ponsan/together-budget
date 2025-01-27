@@ -33,6 +33,16 @@ function Dashboard() {
   const [editDescription, setEditDescription] = useState<string>('');
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
   const [connections, setConnections] = useState<string[]>([]);
+  const [dateFilter, setDateFilter] = useState(() => {
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+      .toISOString().split('T')[0];
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      .toISOString().split('T')[0];
+    return { start: startOfMonth, end: endOfMonth };
+  });
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const categories = [
     'Food',
@@ -230,18 +240,91 @@ function Dashboard() {
     </div>
   );
 
+  // FilterSelectorコンポーネントを更新
+  const FilterSelector = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <button
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
+        >
+          <span>{isFilterOpen ? 'Hide Filters' : 'Show Filters'}</span>
+          <svg
+            className={`w-5 h-5 transform transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
+      {isFilterOpen && (
+        <div className="flex flex-col gap-4 p-4 bg-purple-50 rounded-lg">
+          {/* Date Range Filter */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-gray-700">Date Range:</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={dateFilter.start}
+                onChange={(e) => setDateFilter(prev => ({ ...prev, start: e.target.value }))}
+                className="p-2 border rounded-md text-sm"
+              />
+              <span>-</span>
+              <input
+                type="date"
+                value={dateFilter.end}
+                onChange={(e) => setDateFilter(prev => ({ ...prev, end: e.target.value }))}
+                className="p-2 border rounded-md text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-gray-700">Categories:</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setCategoryFilter(prev => 
+                      prev.includes(cat) 
+                        ? prev.filter(c => c !== cat) 
+                        : [...prev, cat]
+                    )
+                  }}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    categoryFilter.includes(cat)
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // フィルター適用後の支出データを計算
+  const filteredExpenses = expenses.filter(exp => {
+    const matchesCategory = categoryFilter.length === 0 || categoryFilter.includes(exp.category);
+    const matchesDate = !dateFilter.start || (exp.date >= dateFilter.start && exp.date <= dateFilter.end);
+    return matchesCategory && matchesDate;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Section */}
         <div className="flex flex-col space-y-4 md:space-y-0 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
-            <div className="space-y-4">
-              {/* <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                Dashboard
-              </h1> */}
-              <ViewSelector />
-            </div>
             <div className="flex flex-wrap gap-2">
               <Link
                 to="/connect"
@@ -329,9 +412,15 @@ function Dashboard() {
 
         {/* Expense List */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 overflow-x-auto">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {viewingUserId ? 'Partner\'s expense list' : 'Expense list'}
-          </h2>
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {viewingUserId ? 'Partner\'s expense list' : 'Expense list'}
+              </h2>
+              <ViewSelector />
+            </div>
+            <FilterSelector />
+          </div>
           <table className="w-full min-w-[800px] border-b border-t">
             <thead className="bg-gray-50 border-b-2">
               <tr>
@@ -344,7 +433,7 @@ function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {expenses.map(exp => (
+              {filteredExpenses.map(exp => (
                 <tr key={exp.id} className="hover:bg-gray-50">
                   <td className="p-3 border-r border-l">{exp.date}</td>
                   <td className="p-3 border-r border-l">{exp.category}</td>
