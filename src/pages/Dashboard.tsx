@@ -240,24 +240,53 @@ function Dashboard() {
     </div>
   );
 
+  // Add this new function to handle CSV export
+  const handleExportCSV = () => {
+    // Create CSV content
+    const csvContent = filteredExpenses
+      .map(exp => {
+        return `${exp.date}\t${exp.category}\t${exp.description}\t${exp.amountPHP}\t${exp.amountJPY}`;
+      })
+      .join('\n');
+
+    // Create blob and download link
+    const blob = new Blob([csvContent], { type: 'text/tab-separated-values' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `expenses-${dateFilter.start}-to-${dateFilter.end}.tsv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   // FilterSelectorコンポーネントを更新
   const FilterSelector = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
-        >
-          <span>{isFilterOpen ? 'Hide Filters' : 'Show Filters'}</span>
-          <svg
-            className={`w-5 h-5 transform transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+            <span>{isFilterOpen ? 'Hide Filters' : 'Show Filters'}</span>
+            <svg
+              className={`w-5 h-5 transform transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
+          >
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {isFilterOpen && (
