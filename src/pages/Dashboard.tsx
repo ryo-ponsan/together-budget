@@ -43,6 +43,7 @@ function Dashboard() {
   });
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [showSparkle, setShowSparkle] = useState(false);
 
   const categories = [
     'Food',
@@ -136,6 +137,10 @@ function Dashboard() {
       setAmountPHP('');
       setAmountJPY('');
       setDescription('');
+      
+      // Update sparkle effect duration
+      setShowSparkle(true);
+      setTimeout(() => setShowSparkle(false), 500); // Reduced to 800ms for better UX
     } catch (error) {
       console.error('Add expense error:', error);
     }
@@ -348,8 +353,23 @@ function Dashboard() {
     return matchesCategory && matchesDate;
   });
 
+  // Update SparkleEffect component
+  const SparkleEffect = () => {
+    if (!showSparkle) return null;
+    
+    return (
+      <div className="fixed inset-0 pointer-events-none bg-black/30 flex items-center justify-center z-50">
+        <div className="text-white text-6xl font-bold animate-bounce">
+          Add!
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
+      {/* Add SparkleEffect component right after the opening div */}
+      <SparkleEffect />
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Section */}
         <div className="flex flex-col space-y-4 md:space-y-0 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
@@ -450,65 +470,65 @@ function Dashboard() {
             </div>
             <FilterSelector />
           </div>
-          <table className="w-full min-w-[800px] border-b border-t">
+          <table className="w-full min-w-[800px] md:min-w-full border-b border-t text-sm md:text-base">
             <thead className="bg-gray-50 border-b-2">
               <tr>
-                <th className="p-3 text-left text-gray-600 border-r border-l">Date</th>
-                <th className="p-3 text-left text-gray-600 border-r border-l">Category</th>
-                <th className="p-3 text-left text-gray-600 border-r border-l">Description</th>
-                <th className="p-3 text-left text-gray-600 border-r border-l">Amount(PHP)</th>
-                <th className="p-3 text-left text-gray-600 border-r border-l">Amount(JPY)</th>
-                <th className="p-3 text-left text-gray-600 border-r border-l">Actions</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Date</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Category</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Description</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(PHP)</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(JPY)</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredExpenses.map(exp => (
                 <tr key={exp.id} className="hover:bg-gray-50">
-                  <td className="p-3 border-r border-l">{exp.date}</td>
-                  <td className="p-3 border-r border-l">{exp.category}</td>
-                  <td className="p-3 border-r border-l">
+                  <td className="p-2 md:p-3 border-r border-l">{exp.date}</td>
+                  <td className="p-2 md:p-3 border-r border-l">{exp.category}</td>
+                  <td className="p-2 md:p-3 border-r border-l">
                     {editExpenseId === exp.id ? (
                       <input
                         type="text"
                         value={editDescription}
                         onChange={e => setEditDescription(e.target.value)}
-                        className="w-full p-1 border rounded"
+                        className="w-full p-1 border rounded text-sm"
                       />
                     ) : (
                       exp.description
                     )}
                   </td>
-                  <td className="p-3 border-r border-l">
+                  <td className="p-2 md:p-3 border-r border-l">
                     {editExpenseId === exp.id ? (
                       <input
                         type="number"
                         value={editAmountPHP}
                         onChange={e => setEditAmountPHP(e.target.value)}
-                        className="w-full p-1 border rounded"
+                        className="w-full p-1 border rounded text-sm"
                       />
                     ) : (
                       exp.amountPHP
                     )}
                   </td>
-                  <td className="p-3 border-r">
+                  <td className="p-2 md:p-3 border-r">
                     {editExpenseId === exp.id ? (
                       <input
                         type="number"
                         value={editAmountJPY}
                         onChange={e => setEditAmountJPY(e.target.value)}
-                        className="w-full p-1 border rounded"
+                        className="w-full p-1 border rounded text-sm"
                       />
                     ) : (
                       exp.amountJPY
                     )}
                   </td>
-                  <td className="p-3">
+                  <td className="p-2 md:p-3">
                     {!viewingUserId && (
-                      <div className="space-x-2 border-l">
+                      <div className="space-x-1 md:space-x-2 border-l">
                         {editExpenseId === exp.id ? (
                           <button
                             onClick={handleUpdateExpense}
-                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                            className="px-2 md:px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
                           >
                             Save
                           </button>
@@ -516,13 +536,13 @@ function Dashboard() {
                           <>
                             <button
                               onClick={() => handleEditExpense(exp)}
-                              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                              className="px-2 md:px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeleteExpense(exp.id)}
-                              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                              className="px-2 md:px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
                             >
                               Delete
                             </button>
