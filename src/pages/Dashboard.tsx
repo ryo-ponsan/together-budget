@@ -97,6 +97,10 @@ function Dashboard() {
   const PHP_TO_JPY_RATE = 2.67;  // 1 PHP = 2.67 JPY
   const JPY_TO_PHP_RATE = 0.37;  // 1 JPY = 0.37 PHP
 
+  // Get current user's ID and partner info
+  const currentUserId = auth.currentUser?.uid || '';
+  const partnerInfo = connections.length > 0 ? connections[0] : null;
+
   // パートナー接続を取得
   useEffect(() => {
     if (!user) return;
@@ -675,21 +679,64 @@ function Dashboard() {
                 <div>
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="bg-slate-200 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 p-1"
+                    className="bg-slate-200 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 p-2"
                   >
                     <span className="sr-only">Open user menu</span>
-                    <FiUser className="h-6 w-6 text-gray-600" />
+                    <span className="text-gray-600">User</span>
                   </button>
                 </div>
                 
                 {userMenuOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                    <Link
-                      to="/connect"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      {connections.length > 0 ? 'Change Settings' : 'Connect with Partner'}
-                    </Link>
+                  <div className="origin-top-right absolute right-0 mt-2 w-72 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                    {/* User ID display */}
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm text-gray-500">Logged in as</p>
+                      <p className="text-sm font-medium text-gray-900 truncate">{currentUserId}</p>
+                    </div>
+                    
+                    {/* Partner connection status */}
+                    {partnerInfo ? (
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                              <span className="text-green-500 text-xs">👥</span>
+                            </div>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-900">Connected with Partner</p>
+                            <p className="text-xs text-gray-500 truncate">{partnerInfo.userId}</p>
+                          </div>
+                        </div>
+                        <Link
+                          to="/connect"
+                          className="mt-2 block w-full text-center px-4 py-2 text-xs font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                        >
+                          Manage Connection
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
+                              <span className="text-gray-400 text-xs">👤</span>
+                            </div>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-900">Not Connected</p>
+                            <p className="text-xs text-gray-500">Connect with your partner to share expenses</p>
+                          </div>
+                        </div>
+                        <Link
+                          to="/connect"
+                          className="mt-2 block w-full text-center px-4 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100"
+                        >
+                          Connect with Partner
+                        </Link>
+                      </div>
+                    )}
+                    
                     <button
                       onClick={handleSignOut}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -752,20 +799,50 @@ function Dashboard() {
             <div className="pt-4 pb-3 border-t border-gray-200">
               <div className="flex items-center px-4">
                 <div className="flex-shrink-0">
-                  <FiUser className="h-10 w-10 text-gray-400 bg-gray-100 rounded-full p-2" />
+                  <div className="h-10 w-10 text-gray-400 bg-gray-100 rounded-full p-2 flex items-center justify-center">
+                    U
+                  </div>
                 </div>
                 <div className="ml-3">
                   <div className="text-base font-medium text-gray-800">User</div>
+                  <div className="text-sm text-gray-500 truncate">{currentUserId}</div>
                 </div>
               </div>
+              
+              {/* Partner connection status for mobile */}
+              {partnerInfo ? (
+                <div className="mt-3 px-4 py-2 border-t border-b border-gray-200 bg-green-50">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <span className="text-green-500">👥</span>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">Connected with Partner</p>
+                      <p className="text-xs text-gray-500 truncate">{partnerInfo.userId}</p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/connect"
+                    className="mt-2 block w-full text-center px-4 py-2 text-xs font-medium text-indigo-600 bg-white rounded-md border border-indigo-200"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Manage Connection
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-3 px-4 py-2 border-t border-b border-gray-200">
+                  <p className="text-sm text-gray-500">Not connected with a partner</p>
+                  <Link
+                    to="/connect"
+                    className="mt-2 block w-full text-center px-4 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Connect with Partner
+                  </Link>
+                </div>
+              )}
+              
               <div className="mt-3 space-y-1">
-                <Link
-                  to="/connect"
-                  className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {connections.length > 0 ? 'Change Settings' : 'Connect with Partner'}
-                </Link>
                 <button
                   onClick={() => {
                     handleSignOut();
