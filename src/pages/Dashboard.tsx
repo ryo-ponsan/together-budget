@@ -37,6 +37,7 @@ function Dashboard() {
   const [amountPHP, setAmountPHP] = useState('');
   const [amountJPY, setAmountJPY] = useState('');
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [partnerExpenses, setPartnerExpenses] = useState<Expense[]>([]);
   const [description, setDescription] = useState('');
   const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
   const [editAmountPHP, setEditAmountPHP] = useState<string>('');
@@ -392,7 +393,7 @@ function Dashboard() {
     return matchesCategory && matchesDate;
   });
 
-  // Update this function to use selected month/year
+  // Update calculateSummaryData to fix type issues
   const calculateSummaryData = () => {
     // Get selected month's start and end dates
     const startOfMonth = new Date(selectedYear, selectedMonth, 1);
@@ -406,14 +407,14 @@ function Dashboard() {
       ? partnerExpenses 
       : expenses;
     
-    const expensesForMonth = filteredExpenses.filter(exp => {
+    const expensesForMonth = filteredExpenses.filter((exp: Expense) => {
       return exp.date >= startDateStr && exp.date <= endDateStr;
     });
     
     // Group by category and sum amounts
     const summaryData: {[category: string]: {totalPHP: number, totalJPY: number}} = {};
     
-    expensesForMonth.forEach(exp => {
+    expensesForMonth.forEach((exp: Expense) => {
       if (!summaryData[exp.category]) {
         summaryData[exp.category] = { totalPHP: 0, totalJPY: 0 };
       }
