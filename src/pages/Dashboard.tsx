@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { auth, db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
+import { FiUser, FiMenu, FiX } from 'react-icons/fi';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -54,6 +55,25 @@ function Dashboard() {
   // Add state for month selection
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
+  // Add state for user dropdown
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const categories = [
     'Food',
@@ -363,7 +383,7 @@ function Dashboard() {
     return matchesCategory && matchesDate;
   });
 
-  // Update calculateSummaryData to use viewingUserId
+  // Update this function to use selected month/year
   const calculateSummaryData = () => {
     // Get selected month's start and end dates
     const startOfMonth = new Date(selectedYear, selectedMonth, 1);
@@ -372,12 +392,8 @@ function Dashboard() {
     const startDateStr = startOfMonth.toISOString().split('T')[0];
     const endDateStr = endOfMonth.toISOString().split('T')[0];
     
-    // Filter expenses for selected month and current view (my expenses or partner's)
-    const filteredExpenses = viewingUserId 
-      ? expenses.filter(exp => exp.userId === viewingUserId) 
-      : expenses;
-    
-    const expensesThisMonth = filteredExpenses.filter(exp => {
+    // Filter expenses for selected month
+    const expensesThisMonth = expenses.filter(exp => {
       return exp.date >= startDateStr && exp.date <= endDateStr;
     });
     
@@ -462,7 +478,7 @@ function Dashboard() {
     );
   };
 
-  // Update the StatsTab component
+  // Update the StatsTab component to include ViewSelector
   const StatsTab = () => {
     const { summaryData, expensesThisMonth, currentMonthName, currentYear } = calculateSummaryData();
     const categories = Object.keys(summaryData);
@@ -472,7 +488,7 @@ function Dashboard() {
       return (
         <div className="p-6 text-center">
           <div className="mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="text-2xl font-bold text-gray-700">
               {viewingUserId ? 'Partner\'s Monthly Summary' : 'My Monthly Summary'}
             </h2>
             <div className="flex flex-col md:flex-row items-center gap-4">
@@ -486,7 +502,7 @@ function Dashboard() {
           {!viewingUserId && (
             <button 
               onClick={() => setCurrentTab("list")} 
-              className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+              className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
             >
               Add an expense
             </button>
@@ -530,9 +546,9 @@ function Dashboard() {
     
     return (
       <div className="space-y-6">
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+        <div className="bg-slate-100 rounded-xl shadow-xl p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="text-2xl font-bold text-gray-700">
               {viewingUserId ? 'Partner\'s Summary' : 'My Summary'} for {currentMonthName} {currentYear}
             </h2>
             <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -616,63 +632,159 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200">
       {/* Add SparkleEffect component right after the opening div */}
       <SparkleEffect />
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header Section */}
-        <div className="flex flex-col space-y-4 md:space-y-0 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
-            <div className="flex flex-wrap gap-2">
-              <Link
-                to="/connect"
-                className={`px-4 py-2 rounded-md transition-colors ${
-                  connections.length > 0 
-                    ? 'bg-gray-500 text-gray-200 hover:bg-gray-600' // Changed to a darker shade
-                    : 'bg-indigo-500 text-white hover:bg-indigo-600'
-                }`}
-              >
-                {connections.length > 0 ? 'Change setting' : 'Connect with partner'}
-              </Link>
+      
+      {/* Navigation Bar */}
+      <nav className="bg-slate-100 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <span className="text-xl font-bold text-indigo-600">ExpenseTracker</span>
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                {/* Desktop Navigation */}
+                <button
+                  onClick={() => setCurrentTab("list")}
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    currentTab === "list"
+                      ? 'border-indigo-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  }`}
+                >
+                  Expense List
+                </button>
+                <button
+                  onClick={() => setCurrentTab("stats")}
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    currentTab === "stats"
+                      ? 'border-indigo-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  }`}
+                >
+                  Monthly Summary
+                </button>
+              </div>
+            </div>
+            
+            <div className="hidden sm:ml-6 sm:flex sm:items-center">
+              {/* User dropdown menu */}
+              <div className="ml-3 relative" ref={userMenuRef}>
+                <div>
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="bg-slate-200 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 p-1"
+                  >
+                    <span className="sr-only">Open user menu</span>
+                    <FiUser className="h-6 w-6 text-gray-600" />
+                  </button>
+                </div>
+                
+                {userMenuOpen && (
+                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                    <Link
+                      to="/connect"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      {connections.length > 0 ? 'Change Settings' : 'Connect with Partner'}
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Mobile menu button */}
+            <div className="flex items-center sm:hidden">
               <button
-                onClick={handleSignOut}
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               >
-                Sign Out
+                <span className="sr-only">Open main menu</span>
+                {mobileMenuOpen ? (
+                  <FiX className="block h-6 w-6" />
+                ) : (
+                  <FiMenu className="block h-6 w-6" />
+                )}
               </button>
             </div>
           </div>
         </div>
-        
-        {/* Tab Navigation */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-4">
-          <div className="flex space-x-2 border-b">
-            <button
-              onClick={() => setCurrentTab("list")}
-              className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
-                currentTab === "list"
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              Expense List
-            </button>
-            <button
-              onClick={() => setCurrentTab("stats")}
-              className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
-                currentTab === "stats"
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              Monthly Summary
-            </button>
-          </div>
-        </div>
 
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden">
+            <div className="pt-2 pb-3 space-y-1">
+              <button
+                onClick={() => {
+                  setCurrentTab("list");
+                  setMobileMenuOpen(false);
+                }}
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  currentTab === "list"
+                    ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
+                }`}
+              >
+                Expense List
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentTab("stats");
+                  setMobileMenuOpen(false);
+                }}
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  currentTab === "stats"
+                    ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
+                }`}
+              >
+                Monthly Summary
+              </button>
+            </div>
+            <div className="pt-4 pb-3 border-t border-gray-200">
+              <div className="flex items-center px-4">
+                <div className="flex-shrink-0">
+                  <FiUser className="h-10 w-10 text-gray-400 bg-gray-100 rounded-full p-2" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium text-gray-800">User</div>
+                </div>
+              </div>
+              <div className="mt-3 space-y-1">
+                <Link
+                  to="/connect"
+                  className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {connections.length > 0 ? 'Change Settings' : 'Connect with Partner'}
+                </Link>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+      
+      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
         {/* Input Form - Only show when viewing own expenses and on list tab */}
         {!viewingUserId && currentTab === "list" && (
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+          <div className="bg-slate-100 rounded-xl shadow-xl p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label className="block text-gray-700">Date:</label>
@@ -737,17 +849,17 @@ function Dashboard() {
         {/* Tab Content */}
         {currentTab === "list" ? (
           /* Expense List */
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 overflow-x-auto">
+          <div className="bg-slate-100 rounded-xl shadow-xl p-6 overflow-x-auto">
             <div className="flex flex-col gap-4 mb-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-700">
                   {viewingUserId ? 'Partner\'s expense list' : 'Expense list'}
                 </h2>
                 <ViewSelector />
               </div>
               <FilterSelector />
             </div>
-            <table className="w-full min-w-[800px] md:min-w-full border-b border-t text-sm md:text-base">
+            <table className="w-full min-w-[800px] md:min-w-full border-b border-t border-slate-200 text-sm md:text-base">
               <thead className="bg-gray-50 border-b-2">
                 <tr>
                   <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Date</th>
