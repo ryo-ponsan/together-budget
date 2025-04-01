@@ -4,8 +4,7 @@ import { signOut } from 'firebase/auth';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
-import { Pie, Bar } from 'react-chartjs-2';
-import { FiUser, FiMenu, FiX } from 'react-icons/fi';
+import { Pie } from 'react-chartjs-2';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -402,15 +401,19 @@ function Dashboard() {
     const startDateStr = startOfMonth.toISOString().split('T')[0];
     const endDateStr = endOfMonth.toISOString().split('T')[0];
     
-    // Filter expenses for selected month
-    const expensesThisMonth = expenses.filter(exp => {
+    // Filter expenses for selected month and current view (my expenses or partner's)
+    const filteredExpenses = viewingUserId 
+      ? partnerExpenses 
+      : expenses;
+    
+    const expensesForMonth = filteredExpenses.filter(exp => {
       return exp.date >= startDateStr && exp.date <= endDateStr;
     });
     
     // Group by category and sum amounts
     const summaryData: {[category: string]: {totalPHP: number, totalJPY: number}} = {};
     
-    expensesThisMonth.forEach(exp => {
+    expensesForMonth.forEach(exp => {
       if (!summaryData[exp.category]) {
         summaryData[exp.category] = { totalPHP: 0, totalJPY: 0 };
       }
@@ -420,7 +423,6 @@ function Dashboard() {
     
     return {
       summaryData,
-      expensesThisMonth,
       currentMonthName: startOfMonth.toLocaleString('default', { month: 'long' }),
       currentYear: selectedYear
     };
@@ -490,7 +492,7 @@ function Dashboard() {
 
   // Update the StatsTab component to include ViewSelector
   const StatsTab = () => {
-    const { summaryData, expensesThisMonth, currentMonthName, currentYear } = calculateSummaryData();
+    const { summaryData, currentMonthName, currentYear } = calculateSummaryData();
     const categories = Object.keys(summaryData);
     
     // Skip rendering if no data
@@ -643,8 +645,8 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200">
-      {/* Add SparkleEffect component right after the opening div */}
-      <SparkleEffect />
+      {/* SparkleEffect component if it exists */}
+      {typeof SparkleEffect !== 'undefined' && <SparkleEffect />}
       
       {/* Navigation Bar */}
       <nav className="bg-slate-100 shadow-md">
@@ -761,11 +763,9 @@ function Dashboard() {
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               >
                 <span className="sr-only">Open main menu</span>
-                {mobileMenuOpen ? (
-                  <FiX className="block h-6 w-6" />
-                ) : (
-                  <FiMenu className="block h-6 w-6" />
-                )}
+                <span className="block h-6 w-6 text-center">
+                  {mobileMenuOpen ? 'X' : '≡'}
+                </span>
               </button>
             </div>
           </div>
@@ -802,6 +802,7 @@ function Dashboard() {
                 Monthly Summary
               </button>
             </div>
+            
             <div className="pt-4 pb-3 border-t border-gray-200">
               <div className="flex items-center px-4">
                 <div className="flex-shrink-0">
