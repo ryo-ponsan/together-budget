@@ -3,6 +3,11 @@ import { auth, db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 // Add this interface at the top of the file
 interface Expense {
@@ -44,6 +49,7 @@ function Dashboard() {
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showSparkle, setShowSparkle] = useState(false);
+  const [currentTab, setCurrentTab] = useState<"list" | "stats">("list");
 
   const categories = [
     'Food',
@@ -353,6 +359,158 @@ function Dashboard() {
     return matchesCategory && matchesDate;
   });
 
+  // Add this function to calculate summary data
+  const calculateSummaryData = () => {
+    // Get current month's start and end dates
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-11
+    const startOfMonth = new Date(currentYear, currentMonth, 1);
+    const endOfMonth = new Date(currentYear, currentMonth + 1, 0);
+    
+    const startDateStr = startOfMonth.toISOString().split('T')[0];
+    const endDateStr = endOfMonth.toISOString().split('T')[0];
+    
+    // Filter expenses for current month
+    const expensesThisMonth = expenses.filter(exp => {
+      return exp.date >= startDateStr && exp.date <= endDateStr;
+    });
+    
+    // Group by category and sum amounts
+    const summaryData: {[category: string]: {totalPHP: number, totalJPY: number}} = {};
+    
+    expensesThisMonth.forEach(exp => {
+      if (!summaryData[exp.category]) {
+        summaryData[exp.category] = { totalPHP: 0, totalJPY: 0 };
+      }
+      summaryData[exp.category].totalPHP += exp.amountPHP;
+      summaryData[exp.category].totalJPY += exp.amountJPY;
+    });
+    
+    return {
+      summaryData,
+      expensesThisMonth,
+      currentMonthName: now.toLocaleString('default', { month: 'long' }),
+      currentYear
+    };
+  };
+
+  // Stats Tab Component
+  const StatsTab = () => {
+    const { summaryData, expensesThisMonth, currentMonthName, currentYear } = calculateSummaryData();
+    const categories = Object.keys(summaryData);
+    
+    // Skip rendering if no data
+    if (categories.length === 0) {
+      return (
+        <div className="p-6 text-center">
+          <p className="text-lg text-gray-600">No expenses recorded for {currentMonthName} {currentYear}.</p>
+          <button 
+            onClick={() => setCurrentTab("list")} 
+            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+          >
+            Add an expense
+          </button>
+        </div>
+      );
+    }
+    
+    // Prepare data for charts
+    const pieData = {
+      labels: categories,
+      datasets: [
+        {
+          label: 'Expenses (PHP)',
+          data: categories.map(cat => summaryData[cat].totalPHP),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)',
+            'rgba(83, 102, 255, 0.7)',
+            'rgba(78, 252, 152, 0.7)',
+            'rgba(209, 91, 91, 0.7)',
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+    
+    // Calculate totals
+    const totalPHP = categories.reduce((sum, cat) => sum + summaryData[cat].totalPHP, 0);
+    const totalJPY = categories.reduce((sum, cat) => sum + summaryData[cat].totalJPY, 0);
+    
+    return (
+      <div className="space-y-6">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Summary for {currentMonthName} {currentYear}
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Total amounts */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Expenses</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">PHP</p>
+                  <p className="text-2xl font-bold text-indigo-700">{totalPHP.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">JPY</p>
+                  <p className="text-2xl font-bold text-purple-700">{totalJPY.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Pie chart */}
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Expenses by Category (PHP)</h3>
+              <div className="h-64">
+                <Pie data={pieData} options={{ maintainAspectRatio: false }} />
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Category breakdown table */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Category Breakdown</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px] border-collapse">
+              <thead className="bg-gray-50 border-b-2">
+                <tr>
+                  <th className="p-3 text-left text-gray-600">Category</th>
+                  <th className="p-3 text-right text-gray-600">Amount (PHP)</th>
+                  <th className="p-3 text-right text-gray-600">Amount (JPY)</th>
+                  <th className="p-3 text-right text-gray-600">% of Total (PHP)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {categories.map(cat => {
+                  const { totalPHP, totalJPY } = summaryData[cat];
+                  const percentage = (totalPHP / totalPHP * 100).toFixed(1);
+                  
+                  return (
+                    <tr key={cat} className="hover:bg-gray-50">
+                      <td className="p-3">{cat}</td>
+                      <td className="p-3 text-right">{totalPHP.toFixed(2)}</td>
+                      <td className="p-3 text-right">{totalJPY.toFixed(2)}</td>
+                      <td className="p-3 text-right">{percentage}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Update SparkleEffect component
   const SparkleEffect = () => {
     if (!showSparkle) return null;
@@ -394,9 +552,35 @@ function Dashboard() {
             </div>
           </div>
         </div>
+        
+        {/* Tab Navigation */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-4">
+          <div className="flex space-x-2 border-b">
+            <button
+              onClick={() => setCurrentTab("list")}
+              className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
+                currentTab === "list"
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Expense List
+            </button>
+            <button
+              onClick={() => setCurrentTab("stats")}
+              className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
+                currentTab === "stats"
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Monthly Summary
+            </button>
+          </div>
+        </div>
 
-        {/* Input Form - Only show when viewing own expenses */}
-        {!viewingUserId && (
+        {/* Input Form - Only show when viewing own expenses and on list tab */}
+        {!viewingUserId && currentTab === "list" && (
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
@@ -459,103 +643,109 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Expense List */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 overflow-x-auto">
-          <div className="flex flex-col gap-4 mb-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {viewingUserId ? 'Partner\'s expense list' : 'Expense list'}
-              </h2>
-              <ViewSelector />
+        {/* Tab Content */}
+        {currentTab === "list" ? (
+          /* Expense List */
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 overflow-x-auto">
+            <div className="flex flex-col gap-4 mb-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {viewingUserId ? 'Partner\'s expense list' : 'Expense list'}
+                </h2>
+                <ViewSelector />
+              </div>
+              <FilterSelector />
             </div>
-            <FilterSelector />
-          </div>
-          <table className="w-full min-w-[800px] md:min-w-full border-b border-t text-sm md:text-base">
-            <thead className="bg-gray-50 border-b-2">
-              <tr>
-                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Date</th>
-                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Category</th>
-                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Description</th>
-                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(PHP)</th>
-                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(JPY)</th>
-                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredExpenses.map(exp => (
-                <tr key={exp.id} className="hover:bg-gray-50">
-                  <td className="p-2 md:p-3 border-r border-l">{exp.date}</td>
-                  <td className="p-2 md:p-3 border-r border-l">{exp.category}</td>
-                  <td className="p-2 md:p-3 border-r border-l">
-                    {editExpenseId === exp.id ? (
-                      <input
-                        type="text"
-                        value={editDescription}
-                        onChange={e => setEditDescription(e.target.value)}
-                        className="w-full p-1 border rounded text-sm"
-                      />
-                    ) : (
-                      exp.description
-                    )}
-                  </td>
-                  <td className="p-2 md:p-3 border-r border-l">
-                    {editExpenseId === exp.id ? (
-                      <input
-                        type="number"
-                        value={editAmountPHP}
-                        onChange={e => setEditAmountPHP(e.target.value)}
-                        className="w-full p-1 border rounded text-sm"
-                      />
-                    ) : (
-                      exp.amountPHP
-                    )}
-                  </td>
-                  <td className="p-2 md:p-3 border-r">
-                    {editExpenseId === exp.id ? (
-                      <input
-                        type="number"
-                        value={editAmountJPY}
-                        onChange={e => setEditAmountJPY(e.target.value)}
-                        className="w-full p-1 border rounded text-sm"
-                      />
-                    ) : (
-                      exp.amountJPY
-                    )}
-                  </td>
-                  <td className="p-2 md:p-3">
-                    {!viewingUserId && (
-                      <div className="space-x-1 md:space-x-2 border-l">
-                        {editExpenseId === exp.id ? (
-                          <button
-                            onClick={handleUpdateExpense}
-                            className="px-2 md:px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
-                          >
-                            Save
-                          </button>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => handleEditExpense(exp)}
-                              className="px-2 md:px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteExpense(exp.id)}
-                              className="px-2 md:px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </td>
+            <table className="w-full min-w-[800px] md:min-w-full border-b border-t text-sm md:text-base">
+              <thead className="bg-gray-50 border-b-2">
+                <tr>
+                  <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Date</th>
+                  <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Category</th>
+                  <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Description</th>
+                  <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(PHP)</th>
+                  <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(JPY)</th>
+                  <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredExpenses.map(exp => (
+                  <tr key={exp.id} className="hover:bg-gray-50">
+                    <td className="p-2 md:p-3 border-r border-l">{exp.date}</td>
+                    <td className="p-2 md:p-3 border-r border-l">{exp.category}</td>
+                    <td className="p-2 md:p-3 border-r border-l">
+                      {editExpenseId === exp.id ? (
+                        <input
+                          type="text"
+                          value={editDescription}
+                          onChange={e => setEditDescription(e.target.value)}
+                          className="w-full p-1 border rounded text-sm"
+                        />
+                      ) : (
+                        exp.description
+                      )}
+                    </td>
+                    <td className="p-2 md:p-3 border-r border-l">
+                      {editExpenseId === exp.id ? (
+                        <input
+                          type="number"
+                          value={editAmountPHP}
+                          onChange={e => setEditAmountPHP(e.target.value)}
+                          className="w-full p-1 border rounded text-sm"
+                        />
+                      ) : (
+                        exp.amountPHP
+                      )}
+                    </td>
+                    <td className="p-2 md:p-3 border-r">
+                      {editExpenseId === exp.id ? (
+                        <input
+                          type="number"
+                          value={editAmountJPY}
+                          onChange={e => setEditAmountJPY(e.target.value)}
+                          className="w-full p-1 border rounded text-sm"
+                        />
+                      ) : (
+                        exp.amountJPY
+                      )}
+                    </td>
+                    <td className="p-2 md:p-3">
+                      {!viewingUserId && (
+                        <div className="space-x-1 md:space-x-2 border-l">
+                          {editExpenseId === exp.id ? (
+                            <button
+                              onClick={handleUpdateExpense}
+                              className="px-2 md:px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                              Save
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleEditExpense(exp)}
+                                className="px-2 md:px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteExpense(exp.id)}
+                                className="px-2 md:px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          /* Stats Tab */
+          <StatsTab />
+        )}
       </div>
     </div>
   );
