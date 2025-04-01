@@ -50,6 +50,10 @@ function Dashboard() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showSparkle, setShowSparkle] = useState(false);
   const [currentTab, setCurrentTab] = useState<"list" | "stats">("list");
+  
+  // Add state for month selection
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const categories = [
     'Food',
@@ -359,19 +363,16 @@ function Dashboard() {
     return matchesCategory && matchesDate;
   });
 
-  // Add this function to calculate summary data
+  // Update this function to use selected month/year
   const calculateSummaryData = () => {
-    // Get current month's start and end dates
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0-11
-    const startOfMonth = new Date(currentYear, currentMonth, 1);
-    const endOfMonth = new Date(currentYear, currentMonth + 1, 0);
+    // Get selected month's start and end dates
+    const startOfMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0);
     
     const startDateStr = startOfMonth.toISOString().split('T')[0];
     const endDateStr = endOfMonth.toISOString().split('T')[0];
     
-    // Filter expenses for current month
+    // Filter expenses for selected month
     const expensesThisMonth = expenses.filter(exp => {
       return exp.date >= startDateStr && exp.date <= endDateStr;
     });
@@ -390,12 +391,74 @@ function Dashboard() {
     return {
       summaryData,
       expensesThisMonth,
-      currentMonthName: now.toLocaleString('default', { month: 'long' }),
-      currentYear
+      currentMonthName: startOfMonth.toLocaleString('default', { month: 'long' }),
+      currentYear: selectedYear
     };
   };
 
-  // Stats Tab Component
+  // Month selector component
+  const MonthYearSelector = () => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    // Generate array of years (current year and 2 years back)
+    const currentYear = new Date().getFullYear();
+    const years = [currentYear - 2, currentYear - 1, currentYear];
+    
+    // Handle month change
+    const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedMonth(parseInt(e.target.value));
+    };
+    
+    // Handle year change
+    const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedYear(parseInt(e.target.value));
+    };
+    
+    // Set to current month
+    const setToCurrentMonth = () => {
+      const now = new Date();
+      setSelectedMonth(now.getMonth());
+      setSelectedYear(now.getFullYear());
+    };
+    
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <select 
+            value={selectedMonth} 
+            onChange={handleMonthChange}
+            className="bg-white border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            {months.map((month, index) => (
+              <option key={month} value={index}>{month}</option>
+            ))}
+          </select>
+          
+          <select 
+            value={selectedYear} 
+            onChange={handleYearChange}
+            className="bg-white border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            {years.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+        
+        <button 
+          onClick={setToCurrentMonth}
+          className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded-md text-sm transition-colors"
+        >
+          Current Month
+        </button>
+      </div>
+    );
+  };
+
+  // Update the StatsTab component
   const StatsTab = () => {
     const { summaryData, expensesThisMonth, currentMonthName, currentYear } = calculateSummaryData();
     const categories = Object.keys(summaryData);
@@ -404,6 +467,9 @@ function Dashboard() {
     if (categories.length === 0) {
       return (
         <div className="p-6 text-center">
+          <div className="mb-6">
+            <MonthYearSelector />
+          </div>
           <p className="text-lg text-gray-600">No expenses recorded for {currentMonthName} {currentYear}.</p>
           <button 
             onClick={() => setCurrentTab("list")} 
@@ -443,12 +509,20 @@ function Dashboard() {
     const totalPHP = categories.reduce((sum, cat) => sum + summaryData[cat].totalPHP, 0);
     const totalJPY = categories.reduce((sum, cat) => sum + summaryData[cat].totalJPY, 0);
     
+    // Fix the percentage calculation
+    const getPercentage = (amount: number) => {
+      return ((amount / totalPHP) * 100).toFixed(1);
+    };
+    
     return (
       <div className="space-y-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Summary for {currentMonthName} {currentYear}
-          </h2>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Summary for {currentMonthName} {currentYear}
+            </h2>
+            <MonthYearSelector />
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Total amounts */}
@@ -492,7 +566,7 @@ function Dashboard() {
               <tbody className="divide-y divide-gray-200">
                 {categories.map(cat => {
                   const { totalPHP, totalJPY } = summaryData[cat];
-                  const percentage = (totalPHP / totalPHP * 100).toFixed(1);
+                  const percentage = getPercentage(totalPHP);
                   
                   return (
                     <tr key={cat} className="hover:bg-gray-50">
