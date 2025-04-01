@@ -25,6 +25,12 @@ interface Expense {
   userId: string;
 }
 
+// Define the connection type
+interface Connection {
+  userId: string;
+  // 他の必要なプロパティがあれば追加
+}
+
 function Dashboard() {
   const user = auth.currentUser;
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -38,7 +44,7 @@ function Dashboard() {
   const [editAmountJPY, setEditAmountJPY] = useState<string>('');
   const [editDescription, setEditDescription] = useState<string>('');
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
-  const [connections, setConnections] = useState<string[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
   const [dateFilter, setDateFilter] = useState(() => {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
@@ -264,11 +270,11 @@ function Dashboard() {
       {connections.length > 0 && (
         <button
           onClick={() => {
-            setViewingUserId(connections[0]);
-            console.log('Switched to Partner expenses:', connections[0]); // デバッグ用
+            setViewingUserId(connections[0].userId);
+            console.log('Switched to Partner expenses:', connections[0].userId); // デバッグ用
           }}
           className={`px-4 py-2 rounded-md transition-colors ${
-            viewingUserId === connections[0]
+            viewingUserId === connections[0].userId
               ? 'bg-purple-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
