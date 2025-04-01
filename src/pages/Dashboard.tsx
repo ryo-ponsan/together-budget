@@ -363,7 +363,7 @@ function Dashboard() {
     return matchesCategory && matchesDate;
   });
 
-  // Update this function to use selected month/year
+  // Update calculateSummaryData to use viewingUserId
   const calculateSummaryData = () => {
     // Get selected month's start and end dates
     const startOfMonth = new Date(selectedYear, selectedMonth, 1);
@@ -372,8 +372,12 @@ function Dashboard() {
     const startDateStr = startOfMonth.toISOString().split('T')[0];
     const endDateStr = endOfMonth.toISOString().split('T')[0];
     
-    // Filter expenses for selected month
-    const expensesThisMonth = expenses.filter(exp => {
+    // Filter expenses for selected month and current view (my expenses or partner's)
+    const filteredExpenses = viewingUserId 
+      ? expenses.filter(exp => exp.userId === viewingUserId) 
+      : expenses;
+    
+    const expensesThisMonth = filteredExpenses.filter(exp => {
       return exp.date >= startDateStr && exp.date <= endDateStr;
     });
     
@@ -467,16 +471,26 @@ function Dashboard() {
     if (categories.length === 0) {
       return (
         <div className="p-6 text-center">
-          <div className="mb-6">
-            <MonthYearSelector />
+          <div className="mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {viewingUserId ? 'Partner\'s Monthly Summary' : 'My Monthly Summary'}
+            </h2>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <ViewSelector />
+              <MonthYearSelector />
+            </div>
           </div>
-          <p className="text-lg text-gray-600">No expenses recorded for {currentMonthName} {currentYear}.</p>
-          <button 
-            onClick={() => setCurrentTab("list")} 
-            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-          >
-            Add an expense
-          </button>
+          <p className="text-lg text-gray-600">
+            No expenses recorded for {viewingUserId ? 'your partner' : 'you'} in {currentMonthName} {currentYear}.
+          </p>
+          {!viewingUserId && (
+            <button 
+              onClick={() => setCurrentTab("list")} 
+              className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            >
+              Add an expense
+            </button>
+          )}
         </div>
       );
     }
@@ -519,9 +533,12 @@ function Dashboard() {
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
-              Summary for {currentMonthName} {currentYear}
+              {viewingUserId ? 'Partner\'s Summary' : 'My Summary'} for {currentMonthName} {currentYear}
             </h2>
-            <MonthYearSelector />
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <ViewSelector />
+              <MonthYearSelector />
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
