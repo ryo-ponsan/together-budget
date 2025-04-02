@@ -1,0 +1,1468 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+.gitignore
+eslint.config.js
+index.html
+package.json
+postcss.config.js
+public/vite.svg
+README.md
+src/App.css
+src/App.tsx
+src/assets/react.svg
+src/firebaseConfig.ts
+src/index.css
+src/main.tsx
+src/pages/Connect.tsx
+src/pages/Dashboard.tsx
+src/pages/Login.tsx
+src/vite-env.d.ts
+tailwind.config.js
+tsconfig.app.json
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+
+================================================================
+Files
+================================================================
+
+================
+File: .gitignore
+================
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.env
+
+================
+File: eslint.config.js
+================
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
+
+export default tseslint.config(
+  { ignores: ['dist'] },
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
+  },
+)
+
+================
+File: index.html
+================
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/jpeg" href="/tblogo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Together Badget</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+================
+File: package.json
+================
+{
+  "name": "together-budget",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "firebase": "^11.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-firebase-hooks": "^5.1.1",
+    "react-router-dom": "^7.1.3",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@shadcn/ui": "^0.0.4",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5"
+  }
+}
+
+================
+File: postcss.config.js
+================
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+================
+File: public/vite.svg
+================
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+
+================
+File: README.md
+================
+# React + TypeScript + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+
+- Configure the top-level `parserOptions` property like this:
+
+```js
+export default tseslint.config({
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+```
+
+- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
+- Optionally add `...tseslint.configs.stylisticTypeChecked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+
+```js
+// eslint.config.js
+import react from 'eslint-plugin-react'
+
+export default tseslint.config({
+  // Set the react version
+  settings: { react: { version: '18.3' } },
+  plugins: {
+    // Add the react plugin
+    react,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended rules
+    ...react.configs.recommended.rules,
+    ...react.configs['jsx-runtime'].rules,
+  },
+})
+```
+
+================
+File: src/App.css
+================
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+================
+File: src/App.tsx
+================
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from './firebaseConfig';
+
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Connect from './pages/Connect';
+
+function App() {
+  const [user, loading, error] = useAuthState(auth);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <Login />
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            user ? <Dashboard /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+          path="/connect"
+          element={
+            user ? <Connect /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+          path="/"
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+          path="*"
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+
+================
+File: src/assets/react.svg
+================
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+
+================
+File: src/firebaseConfig.ts
+================
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+};
+
+// Firebaseアプリを初期化
+const app = initializeApp(firebaseConfig);
+
+// Authenticationを使う場合
+export const auth = getAuth(app);
+
+// Firestoreを使う場合
+export const db = getFirestore(app);
+
+export default app;
+
+================
+File: src/index.css
+================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+================
+File: src/main.tsx
+================
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+================
+File: src/pages/Connect.tsx
+================
+import { useState, useEffect } from 'react';
+import { auth, db } from '../firebaseConfig';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
+
+function Connect() {
+  const [partnerUserId, setPartnerUserId] = useState('');
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [connections, setConnections] = useState<string[]>([]);
+  const currentUser = auth.currentUser;
+
+  // 現在のconnectionsを取得
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const fetchConnections = async () => {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userRef);
+      
+      if (!userDoc.exists()) {
+        // ユーザードキュメントが存在しない場合は作成
+        await setDoc(userRef, {
+          connections: [],
+          createdAt: new Date()
+        });
+        setConnections([]);
+      } else {
+        setConnections(userDoc.data().connections || []);
+      }
+    };
+
+    fetchConnections();
+  }, [currentUser]);
+
+  const handleConnect = async () => {
+    if (!partnerUserId.trim() || !currentUser) {
+      setMessage('Please enter a user ID');
+      return;
+    }
+
+    if (partnerUserId === currentUser.uid) {
+      setMessage('You cannot use your own ID');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // パートナーのユーザードキュメントの存在確認
+      const partnerRef = doc(db, 'users', partnerUserId);
+      const partnerDoc = await getDoc(partnerRef);
+
+      if (!partnerDoc.exists()) {
+        setMessage('User not found');
+        return;
+      }
+
+      // 既存の接続確認
+      if (connections.includes(partnerUserId)) {
+        setMessage('Already connected to this user');
+        return;
+      }
+
+      // 自分のconnectionsに追加
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        connections: arrayUnion(partnerUserId)
+      });
+
+      setMessage('Connection completed!');
+      setPartnerUserId('');
+    } catch (error) {
+      console.error('Error:', error);
+      setMessage('An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDisconnect = async (partnerId: string) => {
+    if (!currentUser) return;
+    
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        connections: arrayRemove(partnerId)
+      });
+      setMessage('Disconnection completed!');
+    } catch (error) {
+      console.error('Error:', error);
+      setMessage('Failed to disconnect');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
+      <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Connect with partner</h1>
+        
+        {/* 自分のユーザーID表示 */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">Your user ID:</h2>
+          <div className="bg-gray-100 p-3 rounded-md break-all">
+            {currentUser?.uid || 'Loading...'}
+          </div>
+        </div>
+
+        {/* 現在の接続一覧 */}
+        {connections.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-2">Current connections:</h2>
+            <div className="space-y-2">
+              {connections.map(partnerId => (
+                <div key={partnerId} className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
+                  <span className="text-sm break-all">{partnerId}</span>
+                  <button
+                    onClick={() => handleDisconnect(partnerId)}
+                    className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* パートナーのユーザーID入力 */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-gray-700 mb-2">Partner's user ID:</label>
+            <input
+              type="text"
+              value={partnerUserId}
+              onChange={(e) => setPartnerUserId(e.target.value)}
+              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="Enter partner's user ID"
+            />
+          </div>
+
+          <button
+            onClick={handleConnect}
+            disabled={isLoading}
+            className="w-full p-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50"
+          >
+            {isLoading ? 'Checking...' : 'Connect'}
+          </button>
+
+          {message && (
+            <div className={`p-3 rounded-md ${
+              message.includes('completed') || message.includes('Disconnection')
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {message}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Connect;
+
+================
+File: src/pages/Dashboard.tsx
+================
+import { useEffect, useState } from 'react';
+import { auth, db } from '../firebaseConfig';
+import { signOut } from 'firebase/auth';
+import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { Link } from 'react-router-dom';
+
+// Add this interface at the top of the file
+interface Expense {
+  id: string;
+  date: string;
+  category: string;
+  amountPHP: number;
+  amountJPY: number;
+  description: string;
+  createdAt?: {
+    seconds: number;
+    nanoseconds: number;
+  };
+  userId: string;
+}
+
+function Dashboard() {
+  const user = auth.currentUser;
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [category, setCategory] = useState('Food');
+  const [amountPHP, setAmountPHP] = useState('');
+  const [amountJPY, setAmountJPY] = useState('');
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [description, setDescription] = useState('');
+  const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
+  const [editAmountPHP, setEditAmountPHP] = useState<string>('');
+  const [editAmountJPY, setEditAmountJPY] = useState<string>('');
+  const [editDescription, setEditDescription] = useState<string>('');
+  const [viewingUserId, setViewingUserId] = useState<string | null>(null);
+  const [connections, setConnections] = useState<string[]>([]);
+  const [dateFilter, setDateFilter] = useState(() => {
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+      .toISOString().split('T')[0];
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      .toISOString().split('T')[0];
+    return { start: startOfMonth, end: endOfMonth };
+  });
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [showSparkle, setShowSparkle] = useState(false);
+
+  const categories = [
+    'Food',
+    'Transport',
+    'Equipment',
+    'Travel',
+    'Entertainment',
+    'Clothing',
+    'Rent',
+    'Medical',
+    'Beauty',
+    'Self-Development',
+    'Investment',
+    'Electric Bill',
+    'Water Bill',
+    'Internet & Phone',
+    'Other'
+  ];
+
+  // 為替レートの定数を追加
+  const PHP_TO_JPY_RATE = 2.67;  // 1 PHP = 2.67 JPY
+  const JPY_TO_PHP_RATE = 0.37;  // 1 JPY = 0.37 PHP
+
+  // パートナー接続を取得
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchConnections = async () => {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        // connectionsフィールドを確認
+        if (userData.connections && userData.connections.length > 0) {
+          setConnections(userData.connections);
+        }
+      }
+    };
+
+    fetchConnections();
+  }, [user]);
+
+  // 支出データを監視
+  useEffect(() => {
+    if (!user) return;
+    
+    const targetUserId = viewingUserId || user.uid;
+    console.log('Current viewing userId:', targetUserId); // デバッグ用
+
+    const q = query(
+      collection(db, 'expenses'), 
+      where('userId', '==', targetUserId)
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      })) as Expense[];
+      
+      console.log('Fetched expenses:', data); // デバッグ用
+      
+      const sortedData = data.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+      setExpenses(sortedData);
+    });
+    
+    return () => {
+      unsubscribe();
+      setExpenses([]); 
+    };
+  }, [user, viewingUserId]);
+
+  const handleAddExpense = async () => {
+    if (!user) return;
+    try {
+      await addDoc(collection(db, 'expenses'), {
+        userId: user.uid,
+        date,
+        category,
+        amountPHP: Number(amountPHP),
+        amountJPY: Number(amountJPY),
+        description,
+        createdAt: serverTimestamp()
+      });
+      setDate(new Date().toISOString().split('T')[0]);
+      setCategory('Food');
+      setAmountPHP('');
+      setAmountJPY('');
+      setDescription('');
+      
+      // Update sparkle effect duration
+      setShowSparkle(true);
+      setTimeout(() => setShowSparkle(false), 500); // Reduced to 800ms for better UX
+    } catch (error) {
+      console.error('Add expense error:', error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+  };
+
+  const handleEditExpense = (expense: Expense) => {
+    setEditExpenseId(expense.id);
+    setEditAmountPHP(expense.amountPHP.toString());
+    setEditAmountJPY(expense.amountJPY.toString());
+    setEditDescription(expense.description);
+  };
+
+  const handleUpdateExpense = async () => {
+    if (!user || !editExpenseId) return;
+    try {
+        const expenseRef = doc(db, 'expenses', editExpenseId);
+        await updateDoc(expenseRef, {
+            amountPHP: Number(editAmountPHP),
+            amountJPY: Number(editAmountJPY),
+            description: editDescription,
+            updatedAt: serverTimestamp()
+        });
+        setEditExpenseId(null);
+        setEditAmountPHP('');
+        setEditAmountJPY('');
+        setEditDescription('');
+    } catch (error) {
+        console.error('Update expense error:', error);
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!user) return;
+    try {
+        const expenseRef = doc(db, 'expenses', id);
+        await deleteDoc(expenseRef);
+        setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== id));
+    } catch (error) {
+        console.error('Delete expense error:', error);
+    }
+  };
+
+  // amountPHPの入力ハンドラーを更新
+  const handlePHPChange = (value: string) => {
+    setAmountPHP(value);
+    if (value) {
+      // PHPからJPYを計算
+      const jpyAmount = (Number(value) * PHP_TO_JPY_RATE).toFixed(2);
+      setAmountJPY(jpyAmount);
+    } else {
+      setAmountJPY('');
+    }
+  };
+
+  // amountJPYの入力ハンドラーを更新
+  const handleJPYChange = (value: string) => {
+    setAmountJPY(value);
+    if (value) {
+      // JPYからPHPを計算
+      const phpAmount = (Number(value) * JPY_TO_PHP_RATE).toFixed(2);
+      setAmountPHP(phpAmount);
+    } else {
+      setAmountPHP('');
+    }
+  };
+
+  // ヘッダー部分に追加するビューセレクター
+  const ViewSelector = () => (
+    <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
+      <button
+        onClick={() => {
+          setViewingUserId(null);
+          console.log('Switched to My expenses'); // デバッグ用
+        }}
+        className={`px-4 py-2 rounded-md transition-colors ${
+          !viewingUserId 
+            ? 'bg-purple-600 text-white' 
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        }`}
+      >
+        My expense
+      </button>
+      {connections.length > 0 && (
+        <button
+          onClick={() => {
+            setViewingUserId(connections[0]);
+            console.log('Switched to Partner expenses:', connections[0]); // デバッグ用
+          }}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            viewingUserId === connections[0]
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          Partner's expense
+        </button>
+      )}
+    </div>
+  );
+
+  // Add this new function to handle CSV export
+  const handleExportCSV = () => {
+    // Create CSV content
+    const csvContent = filteredExpenses
+      .map(exp => {
+        return `${exp.date}\t${exp.category}\t${exp.description}\t${exp.amountPHP}\t${exp.amountJPY}`;
+      })
+      .join('\n');
+
+    // Create blob and download link
+    const blob = new Blob([csvContent], { type: 'text/tab-separated-values' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `expenses-${dateFilter.start}-to-${dateFilter.end}.tsv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  // FilterSelectorコンポーネントを更新
+  const FilterSelector = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
+          >
+            <span>{isFilterOpen ? 'Hide Filters' : 'Show Filters'}</span>
+            <svg
+              className={`w-5 h-5 transform transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
+          >
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {isFilterOpen && (
+        <div className="flex flex-col gap-4 p-4 bg-purple-50 rounded-lg">
+          {/* Date Range Filter */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-gray-700">Date Range:</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={dateFilter.start}
+                onChange={(e) => setDateFilter(prev => ({ ...prev, start: e.target.value }))}
+                className="p-2 border rounded-md text-sm"
+              />
+              <span>-</span>
+              <input
+                type="date"
+                value={dateFilter.end}
+                onChange={(e) => setDateFilter(prev => ({ ...prev, end: e.target.value }))}
+                className="p-2 border rounded-md text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex flex-col gap-2">
+            <label className="font-medium text-gray-700">Categories:</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setCategoryFilter(prev => 
+                      prev.includes(cat) 
+                        ? prev.filter(c => c !== cat) 
+                        : [...prev, cat]
+                    )
+                  }}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    categoryFilter.includes(cat)
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // フィルター適用後の支出データを計算
+  const filteredExpenses = expenses.filter(exp => {
+    const matchesCategory = categoryFilter.length === 0 || categoryFilter.includes(exp.category);
+    const matchesDate = !dateFilter.start || (exp.date >= dateFilter.start && exp.date <= dateFilter.end);
+    return matchesCategory && matchesDate;
+  });
+
+  // Update SparkleEffect component
+  const SparkleEffect = () => {
+    if (!showSparkle) return null;
+    
+    return (
+      <div className="fixed inset-0 pointer-events-none bg-black/30 flex items-center justify-center z-50">
+        <div className="text-white text-6xl font-bold animate-bounce">
+          Add!
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8">
+      {/* Add SparkleEffect component right after the opening div */}
+      <SparkleEffect />
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col space-y-4 md:space-y-0 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to="/connect"
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  connections.length > 0 
+                    ? 'bg-gray-500 text-gray-200 hover:bg-gray-600' // Changed to a darker shade
+                    : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                }`}
+              >
+                {connections.length > 0 ? 'Change setting' : 'Connect with partner'}
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Input Form - Only show when viewing own expenses */}
+        {!viewingUserId && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="block text-gray-700">Date:</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Category:</label>
+                <select
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Description:</label>
+                <input
+                  type="text"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Amount (PHP):</label>
+                <input
+                  type="number"
+                  value={amountPHP}
+                  onChange={e => handlePHPChange(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-gray-700">Amount (JPY):</label>
+                <input
+                  type="number"
+                  value={amountJPY}
+                  onChange={e => handleJPYChange(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={handleAddExpense}
+                  className="w-full p-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all"
+                >
+                  Add Expense
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Expense List */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-6 overflow-x-auto">
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {viewingUserId ? 'Partner\'s expense list' : 'Expense list'}
+              </h2>
+              <ViewSelector />
+            </div>
+            <FilterSelector />
+          </div>
+          <table className="w-full min-w-[800px] md:min-w-full border-b border-t text-sm md:text-base">
+            <thead className="bg-gray-50 border-b-2">
+              <tr>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Date</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Category</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Description</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(PHP)</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Amount(JPY)</th>
+                <th className="p-2 md:p-3 text-left text-gray-600 border-r border-l">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredExpenses.map(exp => (
+                <tr key={exp.id} className="hover:bg-gray-50">
+                  <td className="p-2 md:p-3 border-r border-l">{exp.date}</td>
+                  <td className="p-2 md:p-3 border-r border-l">{exp.category}</td>
+                  <td className="p-2 md:p-3 border-r border-l">
+                    {editExpenseId === exp.id ? (
+                      <input
+                        type="text"
+                        value={editDescription}
+                        onChange={e => setEditDescription(e.target.value)}
+                        className="w-full p-1 border rounded text-sm"
+                      />
+                    ) : (
+                      exp.description
+                    )}
+                  </td>
+                  <td className="p-2 md:p-3 border-r border-l">
+                    {editExpenseId === exp.id ? (
+                      <input
+                        type="number"
+                        value={editAmountPHP}
+                        onChange={e => setEditAmountPHP(e.target.value)}
+                        className="w-full p-1 border rounded text-sm"
+                      />
+                    ) : (
+                      exp.amountPHP
+                    )}
+                  </td>
+                  <td className="p-2 md:p-3 border-r">
+                    {editExpenseId === exp.id ? (
+                      <input
+                        type="number"
+                        value={editAmountJPY}
+                        onChange={e => setEditAmountJPY(e.target.value)}
+                        className="w-full p-1 border rounded text-sm"
+                      />
+                    ) : (
+                      exp.amountJPY
+                    )}
+                  </td>
+                  <td className="p-2 md:p-3">
+                    {!viewingUserId && (
+                      <div className="space-x-1 md:space-x-2 border-l">
+                        {editExpenseId === exp.id ? (
+                          <button
+                            onClick={handleUpdateExpense}
+                            className="px-2 md:px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                          >
+                            Save
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleEditExpense(exp)}
+                              className="px-2 md:px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteExpense(exp.id)}
+                              className="px-2 md:px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Dashboard;
+
+================
+File: src/pages/Login.tsx
+================
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
+
+const provider = new GoogleAuthProvider();
+
+function Login() {
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Google Sign-In error:', error);
+      alert('ログインに失敗しました');
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <div className="max-w-md w-full space-y-8 p-10 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+              Welcome to Together Budget
+          </h1>
+          <p className="text-gray-500">
+            Let's make your budget more fun and easier
+          </p>
+        </div>
+        <button
+          onClick={handleGoogleSignIn}
+          className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 cursor-pointer shadow-md hover:shadow-lg"
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="currentColor"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="currentColor"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            />
+            <path
+              fill="currentColor"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            />
+          </svg>
+          Googleでログイン
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
+
+================
+File: src/vite-env.d.ts
+================
+/// <reference types="vite/client" />
+
+================
+File: tailwind.config.js
+================
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ["class"],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+  ],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+}
+
+================
+File: tsconfig.app.json
+================
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
+
+================
+File: tsconfig.json
+================
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+
+================
+File: tsconfig.node.json
+================
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+
+================
+File: vite.config.ts
+================
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  build: {
+    outDir: 'build', // 出力先を 'build' に変更
+  },
+});
+
+
+
+================================================================
+End of Codebase
+================================================================
