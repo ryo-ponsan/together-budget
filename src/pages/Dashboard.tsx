@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { auth, db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
-import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, arrayRemove } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
@@ -25,6 +25,33 @@ interface Expense {
   userId: string;
 }
 
+// Improve the Connection interface
+interface Connection {
+  userId: string;
+  // Add any other properties you might need in the future
+}
+
+// Add types for chart data
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor: string[];
+    borderWidth: number;
+  }[];
+}
+
+// Add types for summary data
+interface CategorySummary {
+  totalPHP: number;
+  totalJPY: number;
+}
+
+interface SummaryData {
+  [category: string]: CategorySummary;
+}
+
 function Dashboard() {
   const user = auth.currentUser;
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -38,7 +65,7 @@ function Dashboard() {
   const [editAmountJPY, setEditAmountJPY] = useState<string>('');
   const [editDescription, setEditDescription] = useState<string>('');
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
-  const [connections, setConnections] = useState<string[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
   const [dateFilter, setDateFilter] = useState(() => {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
@@ -110,9 +137,11 @@ function Dashboard() {
       const userDoc = await getDoc(userRef);
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        // connectionsフィールドを確認
+        // connectionsフィールドを確認し、適切な形式に変換
         if (userData.connections && userData.connections.length > 0) {
-          setConnections(userData.connections);
+          // 文字列の配列からConnectionオブジェクトの配列に変換
+          const connectionObjects = userData.connections.map((id: string) => ({ userId: id }));
+          setConnections(connectionObjects);
         }
       }
     };
@@ -246,7 +275,7 @@ function Dashboard() {
   };
 
   // ヘッダー部分に追加するビューセレクター
-  const ViewSelector = () => (
+  const ViewSelector = (): JSX.Element => (
     <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
       <button
         onClick={() => {
@@ -264,11 +293,11 @@ function Dashboard() {
       {connections.length > 0 && (
         <button
           onClick={() => {
-            setViewingUserId(connections[0]);
-            console.log('Switched to Partner expenses:', connections[0]); // デバッグ用
+            setViewingUserId(connections[0].userId);
+            console.log('Switched to Partner expenses:', connections[0].userId); // デバッグ用
           }}
           className={`px-4 py-2 rounded-md transition-colors ${
-            viewingUserId === connections[0]
+            viewingUserId === connections[0].userId
               ? 'bg-purple-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
@@ -301,7 +330,7 @@ function Dashboard() {
   };
 
   // FilterSelectorコンポーネントを更新
-  const FilterSelector = () => (
+  const FilterSelector = (): JSX.Element => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
@@ -402,7 +431,7 @@ function Dashboard() {
     });
     
     // Group by category and sum amounts
-    const summaryData: {[category: string]: {totalPHP: number, totalJPY: number}} = {};
+    const summaryData: SummaryData = {};
     
     expensesThisMonth.forEach(exp => {
       if (!summaryData[exp.category]) {
@@ -421,7 +450,7 @@ function Dashboard() {
   };
 
   // Month selector component
-  const MonthYearSelector = () => {
+  const MonthYearSelector = (): JSX.Element => {
     const months = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
@@ -483,7 +512,7 @@ function Dashboard() {
   };
 
   // Update the StatsTab component to include ViewSelector
-  const StatsTab = () => {
+  const StatsTab = (): JSX.Element => {
     const { summaryData, expensesThisMonth, currentMonthName, currentYear } = calculateSummaryData();
     const categories = Object.keys(summaryData);
     
@@ -516,7 +545,7 @@ function Dashboard() {
     }
     
     // Prepare data for charts
-    const pieData = {
+    const pieData: ChartData = {
       labels: categories,
       datasets: [
         {
@@ -623,7 +652,7 @@ function Dashboard() {
   };
 
   // Update SparkleEffect component
-  const SparkleEffect = () => {
+  const SparkleEffect = (): JSX.Element | null => {
     if (!showSparkle) return null;
     
     return (
@@ -633,6 +662,20 @@ function Dashboard() {
         </div>
       </div>
     );
+  };
+
+  const handleDisconnect = async (partnerId: string) => {
+    if (!user) return;
+    
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        connections: arrayRemove(partnerId)
+      });
+      setConnections(prevConnections => prevConnections.filter(conn => conn.userId !== partnerId));
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
@@ -695,7 +738,7 @@ function Dashboard() {
                     </div>
                     
                     {/* Partner connection status */}
-                    {partnerInfo ? (
+                    {partnerInfo && (
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
@@ -713,26 +756,6 @@ function Dashboard() {
                           className="mt-2 block w-full text-center px-4 py-2 text-xs font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
                         >
                           Manage Connection
-                        </Link>
-                      </div>
-                    ) : (
-                      <div className="px-4 py-3 border-b border-gray-100">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0">
-                            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
-                              <span className="text-gray-400 text-xs">👤</span>
-                            </div>
-                          </div>
-                          <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">Not Connected</p>
-                            <p className="text-xs text-gray-500">Connect with your partner to share expenses</p>
-                          </div>
-                        </div>
-                        <Link
-                          to="/connect"
-                          className="mt-2 block w-full text-center px-4 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100"
-                        >
-                          Connect with Partner
                         </Link>
                       </div>
                     )}
@@ -810,7 +833,7 @@ function Dashboard() {
               </div>
               
               {/* Partner connection status for mobile */}
-              {partnerInfo ? (
+              {partnerInfo && (
                 <div className="mt-3 px-4 py-2 border-t border-b border-gray-200 bg-green-50">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
@@ -827,17 +850,6 @@ function Dashboard() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Manage Connection
-                  </Link>
-                </div>
-              ) : (
-                <div className="mt-3 px-4 py-2 border-t border-b border-gray-200">
-                  <p className="text-sm text-gray-500">Not connected with a partner</p>
-                  <Link
-                    to="/connect"
-                    className="mt-2 block w-full text-center px-4 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Connect with Partner
                   </Link>
                 </div>
               )}
