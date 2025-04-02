@@ -4,8 +4,8 @@ import { signOut } from 'firebase/auth';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, arrayRemove } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
-import { Pie, Bar } from 'react-chartjs-2';
-import { FiUser, FiMenu, FiX } from 'react-icons/fi';
+import { Pie } from 'react-chartjs-2';
+import { FiMenu, FiX } from 'react-icons/fi';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -443,7 +443,6 @@ function Dashboard() {
     
     return {
       summaryData,
-      expensesThisMonth,
       currentMonthName: startOfMonth.toLocaleString('default', { month: 'long' }),
       currentYear: selectedYear
     };
@@ -513,7 +512,7 @@ function Dashboard() {
 
   // Update the StatsTab component to include ViewSelector
   const StatsTab = (): JSX.Element => {
-    const { summaryData, expensesThisMonth, currentMonthName, currentYear } = calculateSummaryData();
+    const { summaryData, currentMonthName, currentYear } = calculateSummaryData();
     const categories = Object.keys(summaryData);
     
     // Skip rendering if no data
@@ -662,20 +661,6 @@ function Dashboard() {
         </div>
       </div>
     );
-  };
-
-  const handleDisconnect = async (partnerId: string) => {
-    if (!user) return;
-    
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      await updateDoc(userRef, {
-        connections: arrayRemove(partnerId)
-      });
-      setConnections(prevConnections => prevConnections.filter(conn => conn.userId !== partnerId));
-    } catch (error) {
-      console.error('Error:', error);
-    }
   };
 
   return (
